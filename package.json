@@ -1,0 +1,43 @@
+{
+    "name": "RestAPI",
+    "author": "Emanuel",
+    "version": "1.0.0",
+    "description": "RestAPI powered by express.js with MySQL database",
+    "scripts": {
+        "start": "node ./bin/www"
+    },
+    "dependencies": {
+        "bcrypt": "^5.1.0",
+        "chalk": "^1.1.1",
+        "cookie-parser": "~1.4.4",
+        "cors": "^2.8.5",
+        "csurf": "^1.11.0",
+        "dateformat": "1.0.12",
+        "dotenv": "^16.3.1",
+        "express": "^4.18.2",
+        "express-rate-limit": "^6.7.0",
+        "express-session": "^1.17.2",
+        "express-validator": "^6.7.0",
+        "helmet": "^6.0.1",
+        "joi": "^17.7.0",
+        "jsonwebtoken": "^9.0.2",
+        "moment": "^2.29.4",
+        "morgan": "^1.10.0",
+        "mysql2": "^3.6.2",
+        "nodemailer": "^6.9.1",
+        "npm-audit-resolver": "^1.0.0",
+        "os-utils": "^0.0.14",
+        "passport": "^0.4.1",
+        "passport-local": "^1.0.0",
+        "pdf-merger-js": "^4.2.0",
+        "pdf-parse": "^1.1.1",
+        "sequelize": "^6.26.0",
+        "swagger-jsdoc": "^7.0.0",
+        "swagger-ui-express": "^5.1.0"
+    },
+    "devDependencies": {
+        "chai": "^4.3.4",
+        "eslint": "^7.32.0",
+        "mocha": "^9.1.3"
+    }
+}
