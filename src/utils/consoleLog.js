@@ -9,6 +9,7 @@ const colors = {
     error: "red",
     warning: "yellow",
     log: "blue",
+    info: "cyan",
 };
 
 function getTime() {
@@ -47,7 +48,7 @@ const logMessage = (type, title, message, separator, json) => {
         console.log(chalk.dim(" " + message));
         logComponent.separator(message.length + 2);
     } else {
-        console.log(chalk[colors[type]](title), chalk.gray(`[ ${getTime()} ]`), message);
+        console.log(chalk[colors[type]](title), chalk.gray(`[ ${getTime()} ]`), chalk[colors[type]](message));
     }
     if (config.logs.save[type]) {
         save_log(type, title, message, json);
@@ -56,19 +57,19 @@ const logMessage = (type, title, message, separator, json) => {
 
 const logComponent = {
     success: (title, message, separator, json) => {
-        logMessage("success", title, message, separator, json);
+        logMessage("success", `✅ ${title}`, message, separator, json);
     },
     error: (title, message, separator, json) => {
-        logMessage("error", title, message, separator, json);
+        logMessage("error", `❌ ${title}`, message, separator, json);
     },
     warning: (title, message, separator, json) => {
-        logMessage("warning", title, message, separator, json);
+        logMessage("warning", `⚠️ ${title}`, message, separator, json);
     },
     log: (title, message, separator) => {
-        logMessage("log", title, message, separator, json);
+        logMessage("log", `▫️ ${title}`, message, separator, json);
     },
     info: (title, message, separator, json) => {
-        logMessage("info", title, message, separator, json);
+        logMessage("info", `ℹ️ ${title}`, message, separator, json);
     },
     multiLine: (messageArray) => {
         messageArray.forEach((message) => {

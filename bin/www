@@ -1,43 +1,54 @@
 #!/usr/bin/env node
 
-/**
- * Module dependencies.
- */
+/*
+ Module dependencies.
+*/
 
-var app = require("../src/app");
-var debug = require("debug")("node-mysql-jwt:server");
-var https = require("https");
-var http = require("http");
-var fs = require("fs");
-
-/**
- * Get port from environment and store in Express.
- */
-
-var port = normalizePort(process.env.PORT || "443");
-app.set("port", port);
-
-/**
- * Create HTTP server.
- */
+const app = require("../src/app");
+const debug = require("debug")("node-mysql-jwt:server");
+const https = require("https");
+const http = require("http");
+const fs = require("fs");
+const logger = require("../src/utils/consoleLog");
 
 /*
-var privateKey = fs.readFileSync("../certs/private.key", "utf8");
-var certificate = fs.readFileSync("../certs/certificate.crt", "utf8");
-var credentials = { key: privateKey, cert: certificate };*/
-var server = http.createServer(app);
+ Get port from environment and store in Express.
+*/
 
-/**
- * Listen on provided port, on all network interfaces.
- */
+const port = normalizePort(process.env.PORT);
+app.set("port", port);
+
+/*
+    Create HTTP server.
+*/
+let server;
+if (process.env.HTTPS == true) {
+    const privateKeyPath = "../certs/private.key";
+    const certificatePath = "../certs/certificate.crt";
+
+    if (!fs.existsSync(privateKeyPath) || !fs.existsSync(certificatePath)) {
+        logger.error("Certificate", "/certs/private.key or /certs/certificate.key not found", false);
+        return false;
+    }
+    const privateKey = fs.readFileSync(privateKeyPath, "utf8");
+    const certificate = fs.readFileSync("../certs/certificate.crt", "utf8");
+    const credentials = { key: privateKey, cert: certificate };
+    server = https.createServer(credentials, app);
+} else {
+    server = http.createServer(app);
+}
+
+/*
+ Listen on provided port, on all network interfaces.
+*/
 
 server.listen(port);
 server.on("error", onError);
 server.on("listening", onListening);
 
-/**
- * Normalize a port into a number, string, or false.
- */
+/*
+ Normalize a port into a number, string, or false.
+*/
 
 function normalizePort(val) {
     var port = parseInt(val, 10);
@@ -69,11 +80,12 @@ function onError(error) {
     // handle specific listen errors with friendly messages
     switch (error.code) {
         case "EACCES":
-            console.error(bind + " requires elevated privileges");
+            logger.error("Port", bind + " requires elevated privileges", false);
             process.exit(1);
             break;
         case "EADDRINUSE":
-            console.error(bind + " is already in use");
+            logger.error("Port", bind + " is already in use", false);
+
             process.exit(1);
             break;
         default:

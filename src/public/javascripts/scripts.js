@@ -25,9 +25,9 @@ p.ping("https://google.com", function (err, apiPing) {
 
     let element = document.getElementById("startProcess");
     element.parentElement.classList.remove("hidden");
-    typeCode("starting...", element, 50);
+    typeCode("loading...", element, 50);
 
-    fetch("http://localhost:8888/status")
+    fetch("http://localhost:8888/api/status")
         .then((response) => {
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
