@@ -31,25 +31,55 @@ app.use(limiter);
 console.clear();
 
 const routesPath = path.join(__dirname, "routes");
-logger.title("info", "Loading Routes", 40);
+logger.title({
+    type: "info",
+    text: "Loading Routes",
+    length: 40,
+})
 fs.readdirSync(routesPath).forEach((file) => {
     if (file.endsWith(".js")) {
         const route = require(path.join(routesPath, file));
         let listening = "/" + path.parse(file).name;
         app.use(listening, route);
-        logger.success("Route", `📁 Route ${file} listening on ${listening}`, false);
+        logger.success({
+            title:"Route",
+            message: `📁 Route ${file} listening on ${listening}`,
+        });
     }
     console.log("");
 });
+
+
+const modelsPath = path.join(__dirname, "database", "models");
+
+const models = fs.readdirSync(modelsPath)
+    .filter(file => file.endsWith(".js"))
+    .map(file => require(path.join(modelsPath, file)));
 
 (async () => {
     await sequelize
         .sync({ force: false })
         .then(() => {
-            logger.success("Database", "Database and tables created successfully.", false);
+            logger.success({
+                title:"Database",
+                message: "Database synchronized.",
+                showDate:true,
+            });
+            const tableNames = Object.keys(sequelize.models);
+            tableNames.forEach((tableName) => {
+                logger.info({
+                    title:"Database",
+                    showDate:true,
+                    message: `Table ${tableName} synchronized.`,
+                });
+            });
         })
         .catch((error) => {
-            logger.error("Database", "Error synchronizing the database", false, error);
+            logger.error({
+                title:"Database",
+                message: "Error synchronizing the database",
+                json: error,
+            })
         });
 })();
 

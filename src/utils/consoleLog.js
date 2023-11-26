@@ -42,13 +42,18 @@ const save_log = (type, title, message, json) => {
     });
 };
 
-const logMessage = (type, title, message, separator, json) => {
+const logMessage = (settings) => {
+    const { type, title, message, showDate, separator, json } = settings;
     if (separator) {
         logComponent.title(type, title, message.length + 2);
         console.log(chalk.dim(" " + message));
         logComponent.separator(message.length + 2);
     } else {
-        console.log(chalk[colors[type]](title), chalk.gray(`[ ${getTime()} ]`), chalk[colors[type]](message));
+        let time = ">";
+        if(showDate){
+            time = chalk.gray(`[ ${getTime()} ]`);
+        }
+        console.log(chalk[colors[type]](title), time, chalk[colors[type]](message));
     }
     if (config.logs.save[type]) {
         save_log(type, title, message, json);
@@ -56,38 +61,33 @@ const logMessage = (type, title, message, separator, json) => {
 };
 
 const logComponent = {
-    success: (title, message, separator, json) => {
-        logMessage("success", `✅ ${title}`, message, separator, json);
+    success: (settings) => {
+        logMessage({ type: "success", ...settings });
     },
-    error: (title, message, separator, json) => {
-        logMessage("error", `❌ ${title}`, message, separator, json);
+    error: (settings) => {
+        logMessage({ type: "error", ...settings });
     },
-    warning: (title, message, separator, json) => {
-        logMessage("warning", `⚠️ ${title}`, message, separator, json);
+    warning: (settings) => {
+        logMessage({ type: "warning", ...settings });
     },
-    log: (title, message, separator) => {
-        logMessage("log", `▫️ ${title}`, message, separator, json);
+    log: (settings) => {
+        logMessage({ type: "log", ...settings });
     },
-    info: (title, message, separator, json) => {
-        logMessage("info", `ℹ️ ${title}`, message, separator, json);
+    info: (settings) => {
+        logMessage({ type: "info", ...settings });
     },
     multiLine: (messageArray) => {
         messageArray.forEach((message) => {
             logMessage("log", message);
         });
     },
-    header: (message) => {
-        logComponent.separator(30);
-        logComponent.success("   [ MineReality WebAPI ]\n");
-        logComponent.info(`   Author: Emanuel Scura`);
-        logComponent.separator(30);
-        console.log("\n");
-    },
-    separator: (length) => {
+    separator: (settings) => {
+        const { length } = settings;
         const sep = "=".repeat(length);
         console.log(chalk.cyan(sep));
     },
-    title: (type, text, length) => {
+    title: (settings) => {
+        const { type, text, length } = settings;
         if (text.length >= length) {
             return text;
         }
