@@ -9,7 +9,7 @@ import helmet from "helmet";
 import cors from "cors";
 import path from "path";
 import UserRequest from "@/utils/request";
-import Routes from "@/routes/_init";
+import { Routes } from "@/routes/_init";
 
 const app: Express = express();
 
@@ -17,9 +17,10 @@ app.use(cors());
 app.use(helmet());
 app.use(compression());
 app.use(morgan("combined"));
+app.use(express.json());
 app.use(cookieParser());
 
-app.set("trust proxy", true);
+app.set("trust proxy", false);
 app.use(bodyParser.json({ limit: "128kb" }));
 app.use(express.static(path.join("public")));
 
@@ -36,12 +37,12 @@ app.use(limiter);
 app.use((req, res, next) => {
     const request = new UserRequest(req, res, next);
 
-    request.authorize();
+    // request.authorize();
     request.log();
+    next();
 });
 
 const routes = new Routes(app);
 // routes.list();
-routes.init();
 
 export default app;

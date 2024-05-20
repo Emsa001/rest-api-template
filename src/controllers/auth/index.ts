@@ -1,7 +1,7 @@
 import logger from "@utils/logger";
 import { Request, Response } from "express";
 
-const login = async (req:Request, res:Response) => {
+const login = async (req: Request, res: Response) => {
     try {
         return res.json({ message: "Hello World" });
     } catch (error) {
@@ -12,7 +12,7 @@ const login = async (req:Request, res:Response) => {
     }
 };
 
-const register = async (req:Request, res:Response) => {
+const register = async (req: Request, res: Response) => {
     try {
         return res.json({ message: "Hello World" });
     } catch (error) {
@@ -21,9 +21,9 @@ const register = async (req:Request, res:Response) => {
             object: error,
         });
     }
-}
+};
 
 export default {
     login,
     register,
-}
+};

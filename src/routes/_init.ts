@@ -1,29 +1,32 @@
-import { Express } from "express";
-
+import { Express, Request, Response } from "express";
 import fs from "fs";
 import path from "path";
-
 import logger from "@utils/logger";
-import { createRequire } from 'module';
+import { createRequire } from "module";
 
 const require = createRequire(import.meta.url);
 
-interface Route {
+class BaseRoute {
     name: string;
     listening: string;
     path: string;
+
+    constructor(name: string, listening: string, path: string) {
+        this.name = name;
+        this.listening = listening;
+        this.path = path;
+    }
 }
 
 class Routes {
     app: Express;
-    loadedRoutes: Route[] = [];
 
     constructor(app: Express) {
         this.app = app;
         this.load();
     }
 
-    private load(){
+    load() {
         try {
             logger.log({
                 message: `Loading routes...`,
@@ -33,9 +36,15 @@ class Routes {
             routeFiles.forEach((file: string) => {
                 if (!file.startsWith("_") && file.endsWith(".ts")) {
                     const routePath: string = path.join("./src/routes", file);
-                    const listening: string = "/" + path.parse(file).name;
 
-                    this.loadedRoutes.push(<Route>{name: file, listening, path:routePath});
+                    const RouteClass = require(routePath).default;
+                    const routeInstance = new RouteClass();
+
+                    this.app.use(routeInstance.listening, routeInstance.router);
+
+                    logger.success({
+                        message: `Route 📁 ${routeInstance.name} listening on ${routeInstance.listening}`,
+                    });
                 }
             });
         } catch (error) {
@@ -45,27 +54,6 @@ class Routes {
             });
         }
     }
-
-    init() {
-        try {
-            logger.log({
-                message: `Initializing routes...`,
-            });
-
-            this.loadedRoutes.forEach((route) => {
-                this.app.use(route.listening, require(route.path));
-
-                logger.success({
-                    message: `Route 📁 ${route.name} listening on ${route.listening}`,
-                });
-            });
-        } catch (error) {
-            logger.error({
-                message: `Error occurred while initializing routes:`,
-                object: error,
-            });
-        }
-    }
 }
 
-export default Routes;
+export { Routes, BaseRoute };
