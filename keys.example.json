@@ -1,0 +1,14 @@
+[
+    {
+        "key": "superSecretKey1",
+        "permissions": [
+            { "endpoint": "auth", "access": "*" },
+            { "endpoint": "email", "access": "*" },
+            { "endpoint": "users", "access": "*" }
+        ]
+    },
+    {
+        "key": "superSecretKey2",
+        "permissions": [{ "endpoint": "auth", "access": ["login", "register"] }]
+    }
+]
