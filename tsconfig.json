@@ -7,8 +7,6 @@
       "paths": {
         "!/*": ["./*"],
         "@/*": ["src/*"],
-        "@utils/*": ["src/utils/*"],
-        "@config/*": ["src/config/*"]
       },
       "esModuleInterop": true,
       "skipLibCheck": true,

@@ -5,7 +5,7 @@ import https from "https";
 import fs from "fs";
 
 import app from "@/index";
-import logger from "@utils/logger";
+import logger from "@/utils/logger";
 
 // Get port from environment and store in Express.
 const port = normalizePort(process.env.PORT || "3000");

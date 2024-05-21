@@ -1,4 +1,4 @@
-import logger from "@utils/logger";
+import logger from "@/utils/logger";
 import { Request, Response } from "express";
 
 const login = async (req: Request, res: Response) => {

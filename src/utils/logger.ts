@@ -51,7 +51,7 @@ const logger = {
     clear: () => console.clear(),
     success: createLoggerMethod("success", "✅", "#84cc16"),
     error: createLoggerMethod("error", "❌", "#ef4444"),
-    warning: createLoggerMethod("warning", "⚠️", "#fbbf24"),
+    warn: createLoggerMethod("warning", "⚠️ ", "#fbbf24"),
     info: createLoggerMethod("info", "ℹ️ ", "#0ea5e9"),
     log: createLoggerMethod("log", "  ", "#ffffff"),
 };

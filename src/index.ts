@@ -1,4 +1,4 @@
-import express, { Express } from "express";
+import express, { Express, Router } from "express";
 import { rateLimit } from "express-rate-limit";
 import cookieParser from "cookie-parser";
 import compression from "compression";
@@ -10,6 +10,7 @@ import cors from "cors";
 import path from "path";
 import UserRequest from "@/utils/request";
 import { Routes } from "@/routes/_init";
+import logger from "@/utils/logger";
 
 const app: Express = express();
 
@@ -35,14 +36,24 @@ const limiter = rateLimit({
 app.use(limiter);
 
 app.use((req, res, next) => {
-    const request = new UserRequest(req, res, next);
-
-    // request.authorize();
-    request.log();
-    next();
+    try{
+        const request = new UserRequest(req, res, next);
+        
+        // request.authorize();
+        request.log();
+        next();
+    }catch(error){
+        logger.error({
+            message: "Error occurred while processing request",
+            object: error,
+            file: process.env.ERROR_LOGS
+        });
+        return res.status(500).json({ message: "Internal server error" });
+    }
 });
 
 const routes = new Routes(app);
-// routes.list();
+await routes.listen("auth");
+
 
 export default app;

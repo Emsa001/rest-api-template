@@ -3,17 +3,21 @@ import validate from "@/utils/validation";
 import schemas from "@/utils/schemas";
 import authController from "@/controllers/auth";
 import { BaseRoute } from "./_init";
+import { fileURLToPath } from "url";
 
 class AuthRoute extends BaseRoute {
     router = express.Router();
 
     constructor() {
-        super("auth", "/auth", __filename);
+        super("auth", "/auth", fileURLToPath(import.meta.url));
         this.router.use(this.setHeaders.bind(this));
-        this.initRoutes();
+        this.setEndpoints();
     }
 
-    private initRoutes() {
+    private setEndpoints(): void {
+        this.router.get("/", (req: Request, res: Response) => {
+            res.json({ message: "Auth route." });
+        });
         this.router.post("/register", validate(schemas.register), authController.register);
         this.router.post("/login", validate(schemas.login), authController.login);
 

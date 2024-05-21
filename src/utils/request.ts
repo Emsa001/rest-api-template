@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 
-import logger from "@utils/logger";
+import logger from "@/utils/logger";
 import keys from "!/keys.json";
 
 class UserRequest {
@@ -37,7 +37,7 @@ class UserRequest {
 
         logger.log({
             message: `${ip} - ${method} ${endpoint} - ${status} - User: ${user}`,
-            file: process.env.REQUESTS_LOG_FILE,
+            file: process.env.REQUESTS_LOGS,
         });
 
     }
