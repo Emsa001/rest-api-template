@@ -62,7 +62,7 @@ class UserRequest {
         }
 
         const authKey = keys.find((key) => {
-            return key.secret === bearerToken;
+            return key.key === bearerToken;
         });
 
         if (!authKey) {
@@ -70,7 +70,7 @@ class UserRequest {
                 message: "Unauthorized request - invalid token",
                 object: { auth: bearerToken },
             });
-            return this.res.status(401).send("Unauthorized request");
+            return this.res.status(401).send("Unauthorized");
         }
 
         const permissions = authKey.permissions.filter((p) => p.endpoint === this.endpoint[1])[0];
@@ -79,7 +79,7 @@ class UserRequest {
                 message: "Unauthorized request - no permission to access this endpoint",
                 object: { endpoint: this.endpoint },
             });
-            return this.res.status(403).send("Unauthorized request");
+            return this.res.status(403).send("Unauthorized");
         }
 
         return this.next();

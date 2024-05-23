@@ -1,4 +1,4 @@
-import express, { Express, Router } from "express";
+import express, { Express, NextFunction, Router } from "express";
 import { rateLimit } from "express-rate-limit";
 import cookieParser from "cookie-parser";
 import compression from "compression";
@@ -35,11 +35,11 @@ const limiter = rateLimit({
 
 app.use(limiter);
 
-app.use((req, res, next) => {
+app.use((req,res,next) => {
     try{
         const request = new UserRequest(req, res, next);
         
-        // request.authorize();
+        request.authorize();
         request.log();
         next();
     }catch(error){
