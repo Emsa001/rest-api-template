@@ -4,7 +4,6 @@ import cookieParser from "cookie-parser";
 import compression from "compression";
 import bodyParser from "body-parser";
 
-import morgan from "morgan";
 import helmet from "helmet";
 import cors from "cors";
 import path from "path";
@@ -17,7 +16,6 @@ const app: Express = express();
 app.use(cors());
 app.use(helmet());
 app.use(compression());
-app.use(morgan("combined"));
 app.use(express.json());
 app.use(cookieParser());
 
@@ -39,14 +37,12 @@ app.use((req,res,next) => {
     try{
         const request = new UserRequest(req, res, next);
         
+        // request.log();
         request.authorize();
-        request.log();
-        next();
-    }catch(error){
+    }catch(err){
         logger.error({
             message: "Error occurred while processing request",
-            object: error,
-            file: process.env.ERROR_LOGS
+            object: err,
         });
         return res.status(500).json({ message: "Internal server error" });
     }
@@ -54,6 +50,5 @@ app.use((req,res,next) => {
 
 const routes = new Routes(app);
 await routes.listen("auth");
-
 
 export default app;

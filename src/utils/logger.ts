@@ -1,5 +1,7 @@
 import fs from "fs";
 import chalk from "chalk";
+import path from "path";
+import { fileURLToPath } from "url";
 
 interface LoggerSettings {
     type?: string;
@@ -16,44 +18,85 @@ interface LoggerSettingsUser {
     object?: any;
 }
 
-const printlog = (settings: LoggerSettings) => {
-    try {
-        const { color, emoji, message, file, object } = settings;
-        const date = new Date().toLocaleString();
+class Logger {
+    private static instance: Logger;
+    private logDirectory: string;
 
-        let output = "";
-        output += `${chalk.gray("[")}${chalk.hex(color || "")(date)}${chalk.gray("] ")}${emoji} ${message}`;
-
-        if (file) {
-            return fs.appendFileSync(file, `[${date}] ${emoji} ${message}` + "\n");
-        }
-
-        console.log(output, object ? '\n' + object : "");
-    } catch (err) {
-        console.log("Error in printlog: ", err);
+    private constructor() {
+        const __filename = fileURLToPath(import.meta.url);
+        const __dirname = path.dirname(__filename);
+        this.logDirectory = path.join(__dirname, '../../logs'); // Adjust path to the root directory
+        this.ensureLogDirectory();
     }
-};
 
-const createLoggerMethod = (type: string, emoji: string, color: string) => {
-    return (settings: LoggerSettingsUser) => {
-        printlog({
-            type,
-            emoji,
-            color,
-            message: settings.message,
-            file: settings.file,
-            object: settings.object,
-        });
-    };
-};
+    private ensureLogDirectory() {
+        if (!fs.existsSync(this.logDirectory)) {
+            fs.mkdirSync(this.logDirectory, { recursive: true });
+        }
+    }
 
-const logger = {
-    clear: () => console.clear(),
-    success: createLoggerMethod("success", "✅", "#84cc16"),
-    error: createLoggerMethod("error", "❌", "#ef4444"),
-    warn: createLoggerMethod("warning", "⚠️ ", "#fbbf24"),
-    info: createLoggerMethod("info", "ℹ️ ", "#0ea5e9"),
-    log: createLoggerMethod("log", "  ", "#ffffff"),
-};
+    private saveLog(output: string, file: string) {
+        try {
+            const filePath = path.join(this.logDirectory, file);
+            if (!fs.existsSync(filePath)) {
+                fs.writeFileSync(filePath, '', { flag: 'wx' });
+            }
+            fs.appendFileSync(filePath, output + "\n");
+        } catch (err) {
+            console.log("Error in saveLog: ", err);
+        }
+    }
 
+    private printLog(settings: LoggerSettings) {
+        try {
+            const { color, emoji, message, object, file, type } = settings;
+            const date = new Date().toLocaleString();
+            const output = `${chalk.gray("[")}${chalk.hex(color || "#ffffff")(date)}${chalk.gray("] ")}${emoji} ${message}`;
+            
+            let logFile = file;
+
+            if (type === "error" && process.env.ERRORS_LOGS_FILE)
+                logFile = process.env.ERRORS_LOGS_FILE;
+
+            if (logFile) {
+                this.saveLog(`[${date}] ${emoji} ${message}\n${object ? JSON.stringify(object) + "\n" : ""}`, logFile);
+            }
+
+            console.log(output);
+        } catch (err) {
+            console.log("Error in printLog: ", err);
+        }
+    }
+
+    private createLoggerMethod(type: string, emoji: string, color: string) {
+        return (settings: LoggerSettingsUser) => {
+            this.printLog({
+                type,
+                emoji,
+                color,
+                message: settings.message,
+                file: settings.file,
+                object: settings.object,
+            });
+        };
+    }
+
+    public clear() {
+        console.clear();
+    }
+
+    public success = this.createLoggerMethod("success", "✅", "#84cc16");
+    public error = this.createLoggerMethod("error", "❌", "#ef4444");
+    public warn = this.createLoggerMethod("warning", "⚠️ ", "#fbbf24");
+    public info = this.createLoggerMethod("info", "ℹ️ ", "#0ea5e9");
+    public log = this.createLoggerMethod("log", "  ", "#ffffff");
+
+    public static getInstance(): Logger {
+        if (!Logger.instance)
+            Logger.instance = new Logger();
+        return Logger.instance;
+    }
+}
+
+const logger = Logger.getInstance();
 export default logger;

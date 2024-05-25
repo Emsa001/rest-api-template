@@ -16,7 +16,7 @@ class AuthRoute extends BaseRoute {
 
     private setEndpoints(): void {
         this.router.get("/", (req: Request, res: Response) => {
-            res.json({ message: "Auth route." });
+            return res.status(200).json({ message: "Auth route." });
         });
         this.router.post("/register", validate(schemas.register), authController.register);
         this.router.post("/login", validate(schemas.login), authController.login);
@@ -24,7 +24,7 @@ class AuthRoute extends BaseRoute {
         this.router.all("*", this.handleBadRequest.bind(this));
     }
 
-    private handleBadRequest(req: Request, res: Response): void {
+    private handleBadRequest(req: Request, res: Response) {
         res.status(400).json({ message: "Bad Request." });
     }
 
