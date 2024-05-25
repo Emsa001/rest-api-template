@@ -55,11 +55,11 @@ class Logger {
             
             let logFile = file;
 
-            if (type === "error" && process.env.ERRORS_LOGS_FILE)
-                logFile = process.env.ERRORS_LOGS_FILE;
+            if (type === "error")
+                logFile = process.env.SYS_ERRORS_LOGS_FILE || "sys_errors.log";
 
             if (logFile) {
-                this.saveLog(`[${date}] ${emoji} ${message}\n${object ? JSON.stringify(object) + "\n" : ""}`, logFile);
+                this.saveLog(`[${date}] ${emoji} ${message}\n${object}`, logFile);
             }
 
             console.log(output);

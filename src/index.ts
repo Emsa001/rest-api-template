@@ -50,7 +50,9 @@ app.use((req,res,next) => {
 });
 
 const db = new Database();
-db.connect();
+db.init();
+const models = db.getModels();
+console.log(models);
 
 const routes = new Routes(app);
 await routes.listen("auth");

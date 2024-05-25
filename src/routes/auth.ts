@@ -1,9 +1,11 @@
 import express, { Request, Response, NextFunction } from "express";
 import validate from "@/utils/validation";
 import schemas from "@/utils/schemas";
-import authController from "@/controllers/auth";
 import { BaseRoute } from "./_init";
 import { fileURLToPath } from "url";
+
+import login from "@/controllers/auth/login";
+import register from "@/controllers/auth/register";
 
 class AuthRoute extends BaseRoute {
     router = express.Router();
@@ -18,8 +20,9 @@ class AuthRoute extends BaseRoute {
         this.router.get("/", (req: Request, res: Response) => {
             return res.status(200).json({ message: "Auth route." });
         });
-        this.router.post("/register", validate(schemas.register), authController.register);
-        this.router.post("/login", validate(schemas.login), authController.login);
+        
+        this.router.post("/login", validate(schemas.login), login);
+        this.router.post("/register", validate(schemas.register), register);
 
         this.router.all("*", this.handleBadRequest.bind(this));
     }
