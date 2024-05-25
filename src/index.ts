@@ -10,6 +10,7 @@ import path from "path";
 import UserRequest from "@/utils/request";
 import { Routes } from "@/routes/_init";
 import logger from "@/utils/logger";
+import Database from "./database/connect";
 
 const app: Express = express();
 
@@ -47,6 +48,9 @@ app.use((req,res,next) => {
         return res.status(500).json({ message: "Internal server error" });
     }
 });
+
+const db = new Database();
+db.connect();
 
 const routes = new Routes(app);
 await routes.listen("auth");
