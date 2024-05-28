@@ -1,4 +1,4 @@
-import express, { Express, NextFunction, Router } from "express";
+import express, { Express } from "express";
 import { rateLimit } from "express-rate-limit";
 import cookieParser from "cookie-parser";
 import compression from "compression";
@@ -11,7 +11,6 @@ import UserRequest from "@/utils/request";
 import { Routes } from "@/routes/_init";
 import logger from "@/utils/logger";
 import Database from "@/database/connect";
-import { Users } from "@/database/models/users";
 
 const app: Express = express();
 
