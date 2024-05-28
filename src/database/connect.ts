@@ -1,4 +1,4 @@
-import { Sequelize } from "sequelize";
+import { Options, Sequelize } from "sequelize";
 import logger from "@/utils/logger";
 import fs from 'fs';
 import path from 'path';
@@ -9,55 +9,54 @@ const __dirname = path.dirname(__filename);
 
 class Database{
     db: Sequelize;
+    name: string;
     
-    constructor()
-    {
-        this.db = new Sequelize({
-            dialect: 'sqlite',
-            storage: './database.sqlite'
-        });
+    constructor(name:string, options:Options){
+        this.name = name;
+        this.db = new Sequelize(options);
     }
 
-    public async init(){
+    public async init(modelsDir: string = './models'){
         await this.connect();
-        await this.loadModels();
+        await this.loadModels(modelsDir);
         await this.db.sync();
-    }
-
-    public async getModels(){
-        return this.db.models;
     }
 
     public async close(){
         try{
             await this.db.close();
             logger.info({
-                message: "DB: Connection closed"
+                message: `DB ${this.name}: Connection closed`
             })
         }catch(err){
             logger.error({
-                message: "DB: Error closing connection",
+                message: `DB ${this.name}: Error closing connection`,
                 object: err
             })
         }
     }
 
-    private async loadModels(){
+    public async getModels(){
+        console.log(this.db.models);
+    }
+
+    private async loadModels(md:string){
         try{
-            const modelsDir = path.resolve(__dirname, './models');
-            fs.readdirSync(modelsDir)
-                .filter(file => file.endsWith('.ts'))
-                .forEach(async (file) => {
-                    const model = (await import(path.join(modelsDir, file))).default;
-                    await model.initialize(this.db);
-                    logger.info({
-                        message: `DB: Loaded model ${file}`,
-                    })
-                });
+            const modelsDir = path.join(__dirname, md);
+            const files = fs.readdirSync(modelsDir)
+                .filter(file => file.endsWith('.ts'));
+
+            for (const file of files) {
+                const model = await import(path.join(modelsDir, file));
+                model.init(this.db);
+                logger.info({
+                    message: `DB ${this.name}: Loaded model ${file}`,
+                })
+            }
         }catch(err){
             console.log(err);
             logger.error({
-                message: "DB: Error loading models",
+                message: `DB ${this.name}: Error loading models`,
                 object: err
             })
         }
@@ -66,10 +65,12 @@ class Database{
     private async connect(){
         try {
             await this.db.authenticate();
-            console.log('Connection has been established successfully.');
+            logger.success({
+                message: `DB ${this.name}: Connection established`
+            })
         } catch (err) {
             logger.error({
-                message: "DB: Error connecting to database",
+                message: `DB ${this.name}: Error connecting to database`,
                 object: err
             })
         }

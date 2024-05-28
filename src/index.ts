@@ -10,7 +10,8 @@ import path from "path";
 import UserRequest from "@/utils/request";
 import { Routes } from "@/routes/_init";
 import logger from "@/utils/logger";
-import Database from "./database/connect";
+import Database from "@/database/connect";
+import { Users } from "@/database/models/users";
 
 const app: Express = express();
 
@@ -34,13 +35,13 @@ const limiter = rateLimit({
 
 app.use(limiter);
 
-app.use((req,res,next) => {
-    try{
+app.use((req, res, next) => {
+    try {
         const request = new UserRequest(req, res, next);
-        
+
         // request.log();
         request.authorize();
-    }catch(err){
+    } catch (err) {
         logger.error({
             message: "Error occurred while processing request",
             object: err,
@@ -49,10 +50,8 @@ app.use((req,res,next) => {
     }
 });
 
-const db = new Database();
-db.init();
-const models = db.getModels();
-console.log(models);
+const db = new Database("minereality", { dialect: "sqlite", storage: "./database1.sqlite", logging: false});
+await db.init("./models");
 
 const routes = new Routes(app);
 await routes.listen("auth");
