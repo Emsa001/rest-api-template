@@ -28,7 +28,7 @@ class Routes {
     async listen(file: string) {
         try {
             const routePath: string = path.join("./src/routes", file);
-
+            
             const RouteClass = (await import(routePath)).default;
             const routeInstance: RouteInstance = new RouteClass();
             if (this.isActive({ listening: routeInstance.listening }))
@@ -47,7 +47,7 @@ class Routes {
                 message: `Error occurred while loading route ${file}:`,
                 object: error,
             });
-            throw error; // Optionally rethrow to handle higher up
+            console.log(error);
         }
     }
 
@@ -64,7 +64,7 @@ class Routes {
                 message: `Error occurred while loading routes:`,
                 object: error,
             });
-            throw error; // Optionally rethrow to handle higher up
+            console.log(error);
         }
     }
 

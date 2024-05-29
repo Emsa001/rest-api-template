@@ -1,4 +1,4 @@
-import Joi from 'joi';
+import Joi from "joi";
 
 const schemas = {
     register: Joi.object().keys({
@@ -8,11 +8,18 @@ const schemas = {
         password_repeat: Joi.ref("password"),
     }),
 
-    login: Joi.object().keys({
-        email: Joi.string().email(),
-        username: Joi.string(),
-        password: Joi.string().required(),
-    }).or('email', 'username').required(),
+    login: Joi.object()
+        .keys({
+            email: Joi.string().email(),
+            username: Joi.string(),
+            password: Joi.string().required(),
+        })
+        .or("email", "username")
+        .required(),
+
+    hello: Joi.object().keys({
+        user: Joi.string().required(),
+    }),
 };
 
 export default schemas;

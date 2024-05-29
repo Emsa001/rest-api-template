@@ -25,7 +25,7 @@ class Logger {
     private constructor() {
         const __filename = fileURLToPath(import.meta.url);
         const __dirname = path.dirname(__filename);
-        this.logDirectory = path.join(__dirname, '../../logs'); // Adjust path to the root directory
+        this.logDirectory = path.join(__dirname, "../../logs"); // Adjust path to the root directory
         this.ensureLogDirectory();
     }
 
@@ -39,7 +39,7 @@ class Logger {
         try {
             const filePath = path.join(this.logDirectory, file);
             if (!fs.existsSync(filePath)) {
-                fs.writeFileSync(filePath, '', { flag: 'wx' });
+                fs.writeFileSync(filePath, "", { flag: "wx" });
             }
             fs.appendFileSync(filePath, output + "\n");
         } catch (err) {
@@ -51,12 +51,13 @@ class Logger {
         try {
             const { color, emoji, message, object, file, type } = settings;
             const date = new Date().toLocaleString();
-            const output = `${chalk.gray("[")}${chalk.hex(color || "#ffffff")(date)}${chalk.gray("] ")}${emoji} ${message}`;
-            
+            const output = `${chalk.gray("[")}${chalk.hex(color || "#ffffff")(date)}${chalk.gray(
+                "] "
+            )}${emoji} ${message}`;
+
             let logFile = file;
 
-            if (type === "error")
-                logFile = process.env.SYS_ERRORS_LOGS_FILE || "sys_errors.log";
+            if (type === "error") logFile = process.env.SYS_ERRORS_LOGS_FILE || "sys_errors.log";
 
             if (logFile) {
                 this.saveLog(`[${date}] ${emoji} ${message}\n${object}`, logFile);
@@ -92,8 +93,7 @@ class Logger {
     public log = this.createLoggerMethod("log", "  ", "#ffffff");
 
     public static getInstance(): Logger {
-        if (!Logger.instance)
-            Logger.instance = new Logger();
+        if (!Logger.instance) Logger.instance = new Logger();
         return Logger.instance;
     }
 }

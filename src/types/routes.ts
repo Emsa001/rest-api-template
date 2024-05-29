@@ -1,4 +1,3 @@
-// src/interfaces.ts
 import { Router } from "express";
 
 export interface ActiveRoute {

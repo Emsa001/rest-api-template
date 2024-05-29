@@ -48,10 +48,10 @@ app.use((req, res, next) => {
     }
 });
 
-const db = new Database("minereality", { dialect: "sqlite", storage: "./database1.sqlite", logging: false});
+const db = new Database("database", { dialect: "sqlite", storage: "./database1.sqlite", logging: false });
 await db.init("./models");
 
 const routes = new Routes(app);
-await routes.listen("auth");
+await routes.listen("public");
 
 export default app;
