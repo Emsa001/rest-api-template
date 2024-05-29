@@ -130,5 +130,5 @@ dist
 .pnp.*
 
 # custom
-keys.json
+.keys.json
 .vscode

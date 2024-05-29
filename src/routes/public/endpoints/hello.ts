@@ -5,10 +5,10 @@ const hello_params = (req: Request, res: Response) => {
     try {
         const user = req.params.user;
 
-        return res.json({ message: `Hello ${user}` });
+        return res.json({ message: `Hello in /public ${user}` });
     } catch (error) {
         logger.error({
-            message: "Error handling helloWorld",
+            message: "Error handling hello_params",
             object: error,
         });
 
@@ -20,10 +20,10 @@ const hello_query = (req: Request, res: Response) => {
     try {
         const user = req.query.user;
 
-        return res.json({ message: `Hello ${user}` });
+        return res.json({ message: `Hello in /public ${user}` });
     } catch (error) {
         logger.error({
-            message: "Error handling helloWorld",
+            message: "Error handling hello_query",
             object: error,
         });
 

@@ -7,9 +7,7 @@ import bodyParser from "body-parser";
 import helmet from "helmet";
 import cors from "cors";
 import path from "path";
-import UserRequest from "@/utils/request";
-import { Routes } from "@/routes/_init";
-import logger from "@/utils/logger";
+import { Routes } from "@/routes/init";
 import Database from "@/database/connect";
 
 const app: Express = express();
@@ -34,24 +32,11 @@ const limiter = rateLimit({
 
 app.use(limiter);
 
-app.use((req, res, next) => {
-    try {
-        const request = new UserRequest(req, res, next);
-
-        request.authorize(false);
-    } catch (err) {
-        logger.error({
-            message: "Error occurred while processing request",
-            object: err,
-        });
-        return res.status(500).json({ message: "Internal server error" });
-    }
-});
-
 const db = new Database("database", { dialect: "sqlite", storage: "./database1.sqlite", logging: false });
 await db.init("./models");
 
 const routes = new Routes(app);
-await routes.listen("public");
+await routes.listen("public"); // listen specific route
+await routes.listenAll(); // listen all
 
 export default app;

@@ -1,25 +1,13 @@
 import { Express } from "express";
 import fs from "fs";
-import path from "path";
+import * as path from "path";
 import logger from "@/utils/logger";
-
 import { ActiveRoute, RouteInstance } from "@/types/routes";
-
-class BaseRoute {
-    name: string;
-    listening: string;
-    path: string;
-
-    constructor(name: string, listening: string, path: string) {
-        this.name = name;
-        this.listening = listening;
-        this.path = path;
-    }
-}
 
 class Routes {
     app: Express;
     active: ActiveRoute[] = [];
+    auth: boolean = true;
 
     constructor(app: Express) {
         this.app = app;
@@ -27,20 +15,20 @@ class Routes {
 
     async listen(file: string) {
         try {
-            const routePath: string = path.join("./src/routes", file);
+            const routePath: string = path.join("./src/routes", file, 'index.ts');
 
             const RouteClass = (await import(routePath)).default;
             const routeInstance: RouteInstance = new RouteClass();
-            if (this.isActive({ listening: routeInstance.listening }))
+            if (this.isActive({ endpoint: routeInstance.endpoint }))
                 return logger.warn({
-                    message: `Route 📁 ${routeInstance.listening} is already active`,
+                    message: `Route 📁 ${routeInstance.endpoint} is already active`,
                 });
 
-            this.active.push({ file, name: routeInstance.name, listening: routeInstance.listening });
-            this.app.use(routeInstance.listening, routeInstance.router); // Add route to express app
+            this.active.push({ file, name: routeInstance.name, endpoint: routeInstance.endpoint });
+            this.app.use(routeInstance.endpoint, routeInstance.router);
 
             logger.success({
-                message: `Route 📁 listening on ${routeInstance.listening}`,
+                message: `Route 📁 endpoint on ${routeInstance.endpoint}`,
             });
         } catch (error) {
             logger.error({
@@ -55,9 +43,13 @@ class Routes {
         try {
             const routeFiles: string[] = fs.readdirSync("./src/routes");
             for (const file of routeFiles) {
-                if (file.startsWith("_") || !file.endsWith(".ts") || this.isActive({ file })) continue;
-
-                await this.listen(file);
+                const fullPath = path.join("./src/routes", file);
+                if (fs.statSync(fullPath).isDirectory()) {
+                    const indexFilePath = path.join(fullPath, "index.ts");
+                    const filename = file.replace(".ts", "");
+                    if (fs.existsSync(indexFilePath) && !this.isActive({ file: filename }))
+                        await this.listen(filename);
+                }
             }
         } catch (error) {
             logger.error({
@@ -70,9 +62,9 @@ class Routes {
 
     isActive(arg: ActiveRoute): boolean {
         return !!this.active.find(
-            (active: ActiveRoute) => active.listening === arg.listening || active.file === arg.file?.replace(".ts", "")
+            (active: ActiveRoute) => active.endpoint === arg.endpoint || active.file === arg.file?.replace(".ts", "")
         );
     }
 }
 
-export { Routes, BaseRoute };
+export { Routes };

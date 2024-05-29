@@ -1,6 +1,11 @@
 import { Request, Response, NextFunction } from "express";
 import logger from "@/utils/logger";
-import keys from "!/keys.json";
+import keys from "!/.keys.json";
+
+interface AcceptRequest {
+    auth: boolean;
+    log: boolean;
+}
 
 class UserRequest {
     data: any;
@@ -35,7 +40,7 @@ class UserRequest {
         });
     }
 
-    authorize(auth: boolean = true) {
+    accept({ auth, log }: AcceptRequest) {
         try {
             if (auth) {
                 if (!this.auth) {
@@ -70,4 +75,4 @@ class UserRequest {
     }
 }
 
-export default UserRequest;
+export { UserRequest, AcceptRequest };
