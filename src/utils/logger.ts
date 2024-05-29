@@ -88,7 +88,7 @@ class Logger {
     public success = this.createLoggerMethod("success", "✅", "#84cc16");
     public error = this.createLoggerMethod("error", "❌", "#ef4444");
     public warn = this.createLoggerMethod("warning", "⚠️ ", "#fbbf24");
-    public info = this.createLoggerMethod("info", "ℹ️", "#0ea5e9");
+    public info = this.createLoggerMethod("info", "ℹ️ ", "#0ea5e9");
     public log = this.createLoggerMethod("log", "  ", "#ffffff");
 
     public static getInstance(): Logger {

@@ -35,32 +35,33 @@ class UserRequest {
         });
     }
 
-    authorize() {
+    authorize(auth:boolean = true) {
         try {
-            if (!this.auth) {
-                this.log("Unauthorized - Missing auth header", 'error', { auth: this.auth });
-                return this.res.status(401).send("Unauthorized");
-            }
+            if(auth) {
+                if (!this.auth) {
+                    this.log("Unauthorized - Missing auth header", 'error', { auth: this.auth });
+                    return this.res.status(401).send("Unauthorized");
+                }
 
-            const bearerToken = this.auth.split(" ")[1];
-            if (!bearerToken) {
-                this.log("Unauthorized - Missing bearer token", 'error', { auth: this.auth });
-                return this.res.status(401).send("Unauthorized");
-            }
+                const bearerToken = this.auth.split(" ")[1];
+                if (!bearerToken) {
+                    this.log("Unauthorized - Missing bearer token", 'error', { auth: this.auth });
+                    return this.res.status(401).send("Unauthorized");
+                }
 
-            const authKey = keys.find(key => key.key === bearerToken);
-            if (!authKey) {
-                this.log("Unauthorized - Invalid token", 'error', { auth: bearerToken });
-                return this.res.status(401).send("Unauthorized");
-            }
+                const authKey = keys.find(key => key.key === bearerToken);
+                if (!authKey) {
+                    this.log("Unauthorized - Invalid token", 'error', { auth: bearerToken });
+                    return this.res.status(401).send("Unauthorized");
+                }
 
-            const permission = authKey.permissions.find(p => p.endpoint === this.endpoint[1]);
-            if (!permission || (permission.access !== "*" && !permission.access.includes(this.endpoint[2]))) {
-                this.log("Forbidden - Insufficient permissions", 'error', { endpoint: this.endpoint });
-                return this.res.status(403).send("Forbidden");
+                const permission = authKey.permissions.find(p => p.endpoint === this.endpoint[1]);
+                if (!permission || (permission.access !== "*" && !permission.access.includes(this.endpoint[2]))) {
+                    this.log("Forbidden - Insufficient permissions", 'error', { endpoint: this.endpoint });
+                    return this.res.status(403).send("Forbidden");
+                }
             }
-
-            this.log("Authorized", 'success', { endpoint: this.endpoint });
+            this.log(auth ? "Authorized" : "", 'success', { endpoint: this.endpoint });
             return this.next();
         } catch (err) {
             this.log("Internal server error", 'error', err);

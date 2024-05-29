@@ -38,8 +38,7 @@ app.use((req, res, next) => {
     try {
         const request = new UserRequest(req, res, next);
 
-        // request.log();
-        request.authorize();
+        request.authorize(false);
     } catch (err) {
         logger.error({
             message: "Error occurred while processing request",
