@@ -28,7 +28,7 @@ class Routes {
     async listen(file: string) {
         try {
             const routePath: string = path.join("./src/routes", file);
-            
+
             const RouteClass = (await import(routePath)).default;
             const routeInstance: RouteInstance = new RouteClass();
             if (this.isActive({ listening: routeInstance.listening }))
@@ -69,7 +69,9 @@ class Routes {
     }
 
     isActive(arg: ActiveRoute): boolean {
-        return !!this.active.find((active: ActiveRoute) => active.listening === arg.listening || active.file === arg.file?.replace(".ts", ""));
+        return !!this.active.find(
+            (active: ActiveRoute) => active.listening === arg.listening || active.file === arg.file?.replace(".ts", "")
+        );
     }
 }
 

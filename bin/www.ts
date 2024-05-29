@@ -15,11 +15,11 @@ function createHttpsServer() {
     try {
         const keyPath = process.env.HTTPS_KEY_PATH || "../certs/private.key";
         const certPath = process.env.HTTPS_CERT_PATH || "../certs/certificate.crt";
-        
+
         const privateKey = fs.readFileSync(keyPath, "utf8");
         const certificate = fs.readFileSync(certPath, "utf8");
         const credentials = { key: privateKey, cert: certificate };
-        
+
         return https.createServer(credentials, app);
     } catch (err) {
         logger.error({ message: "Failed to read HTTPS certificate or key files", object: err });
@@ -40,7 +40,7 @@ server.on("listening", onListening);
 function normalizePort(val: string) {
     const port = parseInt(val, 10);
     if (isNaN(port)) return val; // named pipe
-    if (port >= 0) return port;  // port number
+    if (port >= 0) return port; // port number
     return false;
 }
 
@@ -75,7 +75,7 @@ function onListening() {
 
 // Catch unhandled promise rejections
 process.on("unhandledRejection", (reason, promise) => {
-    logger.error({ message: "Unhandled Rejection at:", object: promise});
+    logger.error({ message: "Unhandled Rejection at:", object: promise });
     process.exit(1);
 });
 
