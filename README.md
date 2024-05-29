@@ -61,7 +61,7 @@ await db2.init("./models2");
 
 #### Hello with params
 
-```http
+```
   GET /public/hello/:user
 ```
 
@@ -71,7 +71,7 @@ await db2.init("./models2");
 
 #### Hello2 with query values
 
-```http
+```
   GET /public/hello2?user=...
 ```
 
@@ -81,7 +81,7 @@ await db2.init("./models2");
 
 
 #### Authorized Request
-```http
+```
   GET /auth/hello
 ```
 
