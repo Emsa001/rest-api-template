@@ -40,12 +40,12 @@ Sequelize allows you to manage multiple databases effortlessly. You can add as m
 
 ```typescript
 // Initialize the first database
-const db1 = new Database("database", { dialect: "sqlite", storage: "./database1.sqlite", logging: false });
+const db1 = new Database("db1", { dialect: "sqlite", storage: "./database1.sqlite", logging: false });
 // Initialize database with models in directory ./models1
 await db1.init("./models1");
 
 // Initialize the second database
-const db2 = new Database({
+const db2 = new Database("db2",{
     dialect: "mysql",
     host: process.env.DB_HOST,
     database: process.env.DB_DATABASE,
