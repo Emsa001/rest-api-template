@@ -26,7 +26,7 @@ class UserRequest {
         this.next = next;
     }
 
-    log(message: string, level: "log" | "warn" | "success" | "error", obj: any = {}) {
+    reqlog(message: string, level: "log" | "warn" | "success" | "error", obj: any = {}) {
         const ip = this.req.ip;
         const status = this.res.statusCode;
         const endpoint = this.endpoint.join("/");
@@ -44,32 +44,32 @@ class UserRequest {
         try {
             if (auth) {
                 if (!this.auth) {
-                    this.log("Unauthorized - Missing auth header", "error", { auth: this.auth });
+                    if (log) this.reqlog("Unauthorized - Missing auth header", "error", { auth: this.auth });
                     return this.res.status(401).send("Unauthorized");
                 }
 
                 const bearerToken = this.auth.split(" ")[1];
                 if (!bearerToken) {
-                    this.log("Unauthorized - Missing bearer token", "error", { auth: this.auth });
+                    if (log) this.reqlog("Unauthorized - Missing bearer token", "error", { auth: this.auth });
                     return this.res.status(401).send("Unauthorized");
                 }
 
                 const authKey = keys.find((key) => key.key === bearerToken);
                 if (!authKey) {
-                    this.log("Unauthorized - Invalid token", "error", { auth: bearerToken });
+                    if (log) this.reqlog("Unauthorized - Invalid token", "error", { auth: bearerToken });
                     return this.res.status(401).send("Unauthorized");
                 }
 
                 const permission = authKey.permissions.find((p) => p.endpoint === this.endpoint[1]);
                 if (!permission || (permission.access !== "*" && !permission.access.includes(this.endpoint[2]))) {
-                    this.log("Forbidden - Insufficient permissions", "error", { endpoint: this.endpoint });
+                    if (log) this.reqlog("Forbidden - Insufficient permissions", "error", { endpoint: this.endpoint });
                     return this.res.status(403).send("Forbidden");
                 }
             }
-            this.log(auth ? "Authorized" : "", "success", { endpoint: this.endpoint });
+            if (log) this.reqlog(auth ? "Authorized" : "", "success", { endpoint: this.req.url });
             return this.next();
         } catch (err) {
-            this.log("Internal server error", "error", err);
+            this.reqlog("Internal server error", "error", err);
             return this.res.status(500).send("Internal server error");
         }
     }

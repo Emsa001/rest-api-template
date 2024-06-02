@@ -51,16 +51,14 @@ class Logger {
         try {
             const { color, emoji, message, object, file, type } = settings;
             const date = new Date().toLocaleString();
-            const output = `${chalk.gray("[")}${chalk.hex(color || "#ffffff")(date)}${chalk.gray(
-                "] "
-            )}${emoji} ${message}`;
+            const output = `${chalk.gray("[")}${chalk.hex(color || "#ffffff")(date)}${chalk.gray("] ")}${emoji} ${message}`;
 
             let logFile = file;
 
-            if (type === "error") logFile = process.env.SYS_ERRORS_LOGS_FILE || "sys_errors.log";
+            if (type === "error" && !file) logFile = process.env.SYS_ERRORS_LOGS_FILE || "sys_errors.log";
 
             if (logFile) {
-                this.saveLog(`[${date}] ${emoji} ${message}\n${object}`, logFile);
+                this.saveLog(`[${date}] ${emoji} ${message}\n${JSON.stringify(object)}`, logFile);
             }
 
             console.log(output);
