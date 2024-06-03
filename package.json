@@ -1,5 +1,5 @@
 {
-  "name": "mr_aibot",
+  "name": "rest-api-template",
   "description": "",
   "version": "1.0.0",
   "type": "module",
@@ -29,7 +29,7 @@
     "moment": "^2.0.0",
     "mongoose": "^8.4.0",
     "morgan": "^1.10.0",
-    "mysql2": "^3.9.7",
+    "mysql2": "^3.10.0",
     "sequelize": "^6.37.3",
     "sqlite3": "^5.1.7",
     "xss": "^1.0.15"
@@ -40,12 +40,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Emsa001/restapi"
+    "url": "git+https://github.com/Emsa001/rest-api-template"
   },
   "author": "Emanuel Scura",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/Emsa001/restapi"
+    "url": "https://github.com/Emsa001/rest-api-template"
   },
-  "homepage": "https://github.com/Emsa001/restapi"
+  "homepage": "https://github.com/Emsa001/rest-api-template"
 }
