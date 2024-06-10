@@ -8,7 +8,8 @@ import helmet from "helmet";
 import cors from "cors";
 import path from "path";
 import { Routes } from "@/routes/init";
-import Database from "@/database/connect";
+import Database from "@/database/init";
+import { Users } from "./database/models/users";
 
 const app: Express = express();
 
@@ -33,7 +34,10 @@ const limiter = rateLimit({
 app.use(limiter);
 
 const db = new Database("database", { dialect: "sqlite", storage: "./database1.sqlite", logging: false });
-await db.init("./models");
+
+await db.load("./models/users"); // load specific model
+await db.loadAll("./models"); // load all models in specific directory
+await db.sync(); // sychronize models with database
 
 const routes = new Routes(app);
 await routes.listen("public"); // listen specific route
