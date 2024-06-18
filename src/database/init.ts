@@ -26,9 +26,10 @@ class Database {
             await this.db.sync();
         } catch (err) {
             logger.error({
-                message: `DB ${this.name}: Error connecting to database`,
+                message: `DB ${this.name}: Error synchronizing to database`,
                 object: err,
             });
+            console.error(err);
         }
     }
 
@@ -43,12 +44,12 @@ class Database {
             return logger.info({
                 message: `DB ${this.name}: Loaded model ${file}`,
             });
-        } catch (err) {
+        } catch (error) {
             logger.error({
                 message: `DB ${this.name}: Error loading model ${file}`,
-                object: err,
+                object: error,
             });
-            console.log(err);
+            console.error(error);
         }
     }
 
@@ -56,23 +57,26 @@ class Database {
         try {
             const modelsDir = path.join(__dirname, md);
             const files = fs.readdirSync(modelsDir).filter((file) => file.endsWith(".ts"));
-    
+
             for (const file of files) {
                 if (!this.loadedModels.has(file)) {
                     const model = await import(path.join(modelsDir, file));
+                    if (!this.db) {
+                        throw new Error("DB instance is undefined.");
+                    }
                     await model.init(this.db);
-                    this.loadedModels.add(file);
+                    this.loadedModels.add(md + "/" + file);
                     logger.info({
-                        message: `DB ${this.name}: Loaded model ${file}`,
+                        message: `DB ${this.name}: Loaded model ${md}/${file}`,
                     });
                 }
             }
-        } catch (err) {
+        } catch (error) {
             logger.error({
                 message: `DB ${this.name}: Error loading models`,
-                object: err,
+                object: error,
             });
-            console.log(err);
+            console.error(error);
         }
     }
 

@@ -1,10 +1,10 @@
 import express, { Request, Response, NextFunction } from "express";
-import validate from "@/utils/validation";
-import schemas from "@/utils/schemas";
 import { fileURLToPath } from "url";
 import { UserRequest, AcceptRequest } from "@/utils/request";
 import { BaseRoute } from "!/src/types/routes";
 import { hello_params, hello_query } from "./endpoints/hello";
+import validate from "!/src/schemas/validate";
+import userSchema from "!/src/schemas/users";
 
 class PublicRoute extends BaseRoute {
     router = express.Router();
@@ -25,8 +25,8 @@ class PublicRoute extends BaseRoute {
             return res.status(200).json({ message: "Hello World from /public" });
         });
 
-        this.router.get("/hello/:user", validate(schemas.hello), hello_params);
-        this.router.get("/hello2", validate(schemas.hello), hello_query);
+        this.router.get("/hello/:user", validate(userSchema.hello), hello_params);
+        this.router.get("/hello2", validate(userSchema.hello), hello_query);
 
         this.router.all("*", this.handleBadRequest.bind(this));
     }

@@ -10,6 +10,7 @@ import path from "path";
 import { Routes } from "@/routes/init";
 import Database from "@/database/init";
 import { Users } from "./database/models/users";
+import logger from "./utils/logger";
 
 const app: Express = express();
 

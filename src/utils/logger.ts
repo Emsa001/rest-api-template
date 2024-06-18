@@ -57,11 +57,10 @@ class Logger {
 
             if (type === "error" && !file) logFile = process.env.SYS_ERRORS_LOGS_FILE || "sys_errors.log";
 
-            if (logFile) {
-                this.saveLog(`[${date}] ${emoji} ${message}\n${JSON.stringify(object)}`, logFile);
-            }
+            if (logFile) this.saveLog(`[${date}] ${emoji} ${message}\n${JSON.stringify(object)}`, logFile);
 
             console.log(output);
+            if (object) console.log(chalk.red("Error: "), object);
         } catch (err) {
             console.log("Error in printLog: ", err);
         }
