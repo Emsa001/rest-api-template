@@ -20,13 +20,10 @@ class Database {
     public async sync() {
         try {
             await this.db.authenticate();
-            logger.success({
-                message: `DB ${this.name}: Connection established`,
-            });
+            logger.info(`DB ${this.name}: Connection established`);
             await this.db.sync();
         } catch (err) {
-            logger.error({
-                message: `DB ${this.name}: Error synchronizing to database`,
+            logger.error(`DB ${this.name}: Error synchronizing to database`, {
                 object: err,
             });
             console.error(err);
@@ -41,12 +38,9 @@ class Database {
             await model.init(this.db);
             this.loadedModels.add(file.split("/")[file.split("/").length - 1]);
 
-            return logger.info({
-                message: `DB ${this.name}: Loaded model ${file}`,
-            });
+            return logger.info(`DB ${this.name}: Loaded model ${file}`, {});
         } catch (error) {
-            logger.error({
-                message: `DB ${this.name}: Error loading model ${file}`,
+            logger.error(`DB ${this.name}: Error loading model ${file}`, {
                 object: error,
             });
             console.error(error);
@@ -66,14 +60,11 @@ class Database {
                     }
                     await model.init(this.db);
                     this.loadedModels.add(md + "/" + file);
-                    logger.info({
-                        message: `DB ${this.name}: Loaded model ${md}/${file}`,
-                    });
+                    logger.info(`DB ${this.name}: Loaded model ${md}/${file}`);
                 }
             }
         } catch (error) {
-            logger.error({
-                message: `DB ${this.name}: Error loading models`,
+            logger.error(`DB ${this.name}: Error loading models`, {
                 object: error,
             });
             console.error(error);
@@ -83,12 +74,9 @@ class Database {
     public async close() {
         try {
             await this.db.close();
-            logger.info({
-                message: `DB ${this.name}: Connection closed`,
-            });
+            logger.info(`DB ${this.name}: Connection closed`);
         } catch (err) {
-            logger.error({
-                message: `DB ${this.name}: Error closing connection`,
+            logger.error(`DB ${this.name}: Error closing connection`, {
                 object: err,
             });
         }

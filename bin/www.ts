@@ -53,11 +53,11 @@ function onError(error: any) {
     // Handle specific listen errors with friendly messages
     switch (error.code) {
         case "EACCES":
-            logger.error({ message: `${bind} requires elevated privileges` });
+            logger.error(`${bind} requires elevated privileges`);
             process.exit(1);
             break;
         case "EADDRINUSE":
-            logger.error({ message: `${bind} is already in use` });
+            logger.error(`${bind} is already in use`);
             process.exit(1);
             break;
         default:
@@ -70,17 +70,17 @@ function onListening() {
     const addr = server.address();
     const bind = typeof addr === "string" ? `pipe ${addr}` : `port ${addr?.port}`;
 
-    logger.info({ message: `Listening on ${bind}` });
+    logger.info(`Listening on ${bind}`);
 }
 
 // Catch unhandled promise rejections
 process.on("unhandledRejection", (reason, promise) => {
-    logger.error({ message: "Unhandled Rejection at:", object: promise });
+    logger.error("Unhandled Rejection at:", promise);
     process.exit(1);
 });
 
 // Catch uncaught exceptions
 process.on("uncaughtException", (err) => {
-    logger.error({ message: "Uncaught Exception thrown", object: err });
+    logger.error("Uncaught Exception thrown", err);
     process.exit(1);
 });

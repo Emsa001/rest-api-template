@@ -9,8 +9,7 @@ import cors from "cors";
 import path from "path";
 import { Routes } from "@/routes/init";
 import Database from "@/database/init";
-import { Users } from "./database/models/users";
-import logger from "./utils/logger";
+import { logRequest } from "./utils/logger";
 
 const app: Express = express();
 
@@ -19,6 +18,7 @@ app.use(helmet());
 app.use(compression());
 app.use(express.json());
 app.use(cookieParser());
+app.use(logRequest);
 
 app.set("trust proxy", false);
 app.use(bodyParser.json({ limit: "128kb" }));
@@ -41,7 +41,6 @@ await db.loadAll("./models"); // load all models in specific directory
 await db.sync(); // sychronize models with database
 
 const routes = new Routes(app);
-await routes.listen("public"); // listen specific route
 await routes.listenAll(); // listen all
 
 export default app;

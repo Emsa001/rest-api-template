@@ -11,7 +11,8 @@ const validate = (schema: any) => (req: Request, res: Response, next: NextFuncti
         if (result.error) {
             const { details } = result.error;
             const message = details[0].message.replace(/"|'/g, "");
-            return res.status(400).json({ message });
+            res.status(400).json({ message });
+            return ;
         }
     }
 

@@ -1,99 +1,47 @@
+import pino from "pino";
+import { Request, Response, NextFunction } from "express";
 import fs from "fs";
-import chalk from "chalk";
-import path from "path";
-import { fileURLToPath } from "url";
 
-interface LoggerSettings {
-    type?: string;
-    emoji?: string;
-    message: string;
-    color?: string;
-    file?: string;
-    object?: any;
+if (!fs.existsSync("./logs")) {
+    fs.mkdirSync("./logs");
 }
 
-interface LoggerSettingsUser {
-    message: string;
-    file?: string;
-    object?: any;
+const prettyStream = pino.transport({
+    target: "pino-pretty",
+    options: {
+        colorize: true,
+        translateTime: "HH:MM:ss Z",
+        ignore: "pid,hostname",
+        singleLine: true,
+    },
+});
+
+const Logger = pino(
+    {
+        level: "debug",
+        base: null,
+    },
+    pino.multistream([
+        { level: "info", stream: pino.destination("./logs/info.log") },
+        { level: "error", stream: pino.destination("./logs/error.log") },
+        { level: "warn", stream: pino.destination("./logs/warn.log") },
+        { level: "fatal", stream: pino.destination("./logs/fatal.log") },
+        { level: "debug", stream: prettyStream },
+    ])
+);
+
+export function logRequest(req: Request, res: Response, next: NextFunction) {
+    const start = Date.now(); 
+
+    res.on("finish", () => {
+        const responseTime = Date.now() - start;
+
+        Logger.info(
+            `${res.statusCode} | ${req.method} ${req.originalUrl} ${responseTime}ms`
+        );
+    });
+
+    next();
 }
 
-class Logger {
-    private static instance: Logger;
-    private logDirectory: string;
-
-    private constructor() {
-        const __filename = fileURLToPath(import.meta.url);
-        const __dirname = path.dirname(__filename);
-        this.logDirectory = path.join(__dirname, "../../logs"); // Adjust path to the root directory
-        this.ensureLogDirectory();
-    }
-
-    private ensureLogDirectory() {
-        if (!fs.existsSync(this.logDirectory)) {
-            fs.mkdirSync(this.logDirectory, { recursive: true });
-        }
-    }
-
-    private saveLog(output: string, file: string) {
-        try {
-            const filePath = path.join(this.logDirectory, file);
-            if (!fs.existsSync(filePath)) {
-                fs.writeFileSync(filePath, "", { flag: "wx" });
-            }
-            fs.appendFileSync(filePath, output + "\n");
-        } catch (err) {
-            console.log("Error in saveLog: ", err);
-        }
-    }
-
-    private printLog(settings: LoggerSettings) {
-        try {
-            const { color, emoji, message, object, file, type } = settings;
-            const date = new Date().toLocaleString();
-            const output = `${chalk.gray("[")}${chalk.hex(color || "#ffffff")(date)}${chalk.gray("] ")}${emoji} ${message}`;
-
-            let logFile = file;
-
-            if (type === "error" && !file) logFile = process.env.SYS_ERRORS_LOGS_FILE || "sys_errors.log";
-
-            if (logFile) this.saveLog(`[${date}] ${emoji} ${message}\n${JSON.stringify(object)}`, logFile);
-
-            console.log(output);
-            if (object) console.log(chalk.red("Error: "), object);
-        } catch (err) {
-            console.log("Error in printLog: ", err);
-        }
-    }
-
-    private createLoggerMethod(type: string, emoji: string, color: string) {
-        return (settings: LoggerSettingsUser) => {
-            this.printLog({
-                type,
-                emoji,
-                color,
-                message: settings.message,
-                file: settings.file,
-                object: settings.object,
-            });
-        };
-    }
-
-    public clear() {
-        console.clear();
-    }
-
-    public success = this.createLoggerMethod("success", "✅", "#84cc16");
-    public error = this.createLoggerMethod("error", "❌", "#ef4444");
-    public warn = this.createLoggerMethod("warning", "⚠️ ", "#fbbf24");
-    public info = this.createLoggerMethod("info", "ℹ️ ", "#0ea5e9");
-    public log = this.createLoggerMethod("log", "  ", "#ffffff");
-
-    public static getInstance(): Logger {
-        if (!Logger.instance) Logger.instance = new Logger();
-        return Logger.instance;
-    }
-}
-
-const logger = Logger.getInstance();
-export default logger;
+export default Logger;

@@ -1,10 +1,9 @@
 import { Request, Response, NextFunction } from "express";
-import logger from "@/utils/logger";
 import keys from "!/.keys.json";
+import { IKey, IPermission } from "../types/other";
 
 interface AcceptRequest {
     auth: boolean;
-    log: boolean;
 }
 
 class UserRequest {
@@ -20,57 +19,44 @@ class UserRequest {
         this.data = req.method === "GET" ? req.query : req.body;
         this.headers = req.headers;
         this.auth = req.headers.authorization || "";
-        this.endpoint = req.url.split("/");
+        this.endpoint = req.originalUrl.split("/").filter((e: string) => e !== "");
         this.req = req;
         this.res = res;
         this.next = next;
     }
 
-    reqlog(message: string, level: "log" | "warn" | "success" | "error", obj: any = {}) {
-        const ip = this.req.ip;
-        const status = this.res.statusCode;
-        const endpoint = this.endpoint.join("/");
-        const method = this.req.method;
-        const user = this.headers["user-agent"] || "Unknown";
+    accept({ auth }: AcceptRequest) {
+        if (this.res.headersSent) return;
 
-        logger[level]({
-            message: `${ip} - ${method} ${endpoint} - ${status} - User: ${user} - ${message}`,
-            object: obj,
-            file: level == "error" ? process.env.REQ_ERRORS_LOGS_FILE : process.env.REQ_LOGS_FILE,
-        });
-    }
-
-    accept({ auth, log }: AcceptRequest) {
-        try {
-            if (auth) {
-                if (!this.auth) {
-                    if (log) this.reqlog("Unauthorized - Missing auth header", "error", { auth: this.auth });
-                    return this.res.status(401).send("Unauthorized");
-                }
-
-                const bearerToken = this.auth.split(" ")[1];
-                if (!bearerToken) {
-                    if (log) this.reqlog("Unauthorized - Missing bearer token", "error", { auth: this.auth });
-                    return this.res.status(401).send("Unauthorized");
-                }
-
-                const authKey = keys.find((key) => key.key === bearerToken);
-                if (!authKey) {
-                    if (log) this.reqlog("Unauthorized - Invalid token", "error", { auth: bearerToken });
-                    return this.res.status(401).send("Unauthorized");
-                }
-
-                const permission = authKey.permissions.find((p) => p.endpoint === this.endpoint[1]);
-                if (!permission || (permission.access !== "*" && !permission.access.includes(this.endpoint[2]))) {
-                    if (log) this.reqlog("Forbidden - Insufficient permissions", "error", { endpoint: this.endpoint });
-                    return this.res.status(403).send("Forbidden");
-                }
-            }
-            if (log) this.reqlog(auth ? "Authorized" : "", "success", { endpoint: this.req.url });
+        if (!auth) {
             return this.next();
-        } catch (err) {
-            this.reqlog("Internal server error", "error", err);
-            return this.res.status(500).send("Internal server error");
+        }
+
+        if (!this.auth) return this.res.status(401).send("Unauthorized");
+
+        const bearerToken = this.auth.split(" ")[1];
+        if (!bearerToken) return this.res.status(401).send("Unauthorized");
+
+        const authKey = keys.find((key: IKey) => key.key === bearerToken);
+        if (!authKey) return this.res.status(401).send("Unauthorized");
+
+        const fullEndpoint = this.endpoint.slice().splice(-1).join("/");
+        const endpointCheck = authKey.permissions.find((p: IPermission) => p.endpoint === this.endpoint[0] || p.endpoint === fullEndpoint);
+
+        if (!endpointCheck) {
+            return this.res.status(403).send("Forbidden");
+        }
+
+        const temp = this.endpoint.slice().splice(1).join("/");
+        const hasAccess = endpointCheck.access.some((a: string) => {
+            if (a === "*" || a === this.endpoint[1] || a === temp) {
+                return this.next();
+            }
+            return false;
+        });
+
+        if (!hasAccess) {
+            return this.res.status(403).send("Forbidden");
         }
     }
 }

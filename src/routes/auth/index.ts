@@ -3,8 +3,11 @@ import { fileURLToPath } from "url";
 import { UserRequest, AcceptRequest } from "@/utils/request";
 import { BaseRoute } from "!/src/types/routes";
 import { hello } from "./endpoints/hello";
+import { login } from "./endpoints/login";
+import validate from "!/src/schemas/validate";
+import schemas from "!/src/schemas/users";
 
-class AuthRoute extends BaseRoute {
+class Route extends BaseRoute {
     router = express.Router();
 
     constructor() {
@@ -14,25 +17,26 @@ class AuthRoute extends BaseRoute {
             path: fileURLToPath(import.meta.url),
         });
         this.router.use(this.setHeaders.bind(this));
-        this.request({ auth: true, log: true });
+        this.request({ auth: false });
         this.setEndpoints();
     }
 
-    private setEndpoints(): void {
+    private setEndpoints(): Response<any, Record<string, any>> | NextFunction | void {
         this.router.get("/", (req: Request, res: Response) => {
-            return res.status(200).json({ message: "Hello World from /auth" });
+            res.status(200).json({ message: "Hello World!" });
         });
-
-        this.router.get("/hello", hello);
-
+        
+        this.router.post("/login", validate(schemas.login), login);
+        this.router.post("/hello", hello);
         this.router.all("*", this.handleBadRequest.bind(this));
     }
 
     private handleBadRequest(req: Request, res: Response) {
-        res.status(400).json({ message: "Bad Request." });
+        if(res.headersSent) return;
+        return res.status(400).json({ message: "Bad Request." });
     }
 
-    private setHeaders(req: Request, res: Response, next: NextFunction): void {
+    private setHeaders(req: Request, res: Response, next: NextFunction) {
         res.header("Access-Control-Allow-Origin", "*");
         res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
         next();
@@ -41,9 +45,9 @@ class AuthRoute extends BaseRoute {
     private request(settings: AcceptRequest) {
         this.router.use((req: Request, res: Response, next: NextFunction) => {
             const request = new UserRequest(req, res, next);
-            return request.accept(settings);
+            request.accept(settings);
         });
     }
 }
 
-export default AuthRoute;
+export default Route;
