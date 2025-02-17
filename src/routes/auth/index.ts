@@ -2,10 +2,12 @@ import express, { Request, Response, NextFunction } from "express";
 import { fileURLToPath } from "url";
 import { UserRequest, AcceptRequest } from "@/utils/request";
 import { BaseRoute } from "!/src/types/routes";
-import { hello } from "./endpoints/hello";
-import { login } from "./endpoints/login";
 import validate from "!/src/schemas/validate";
 import schemas from "!/src/schemas/users";
+
+import { login } from "./endpoints/login";
+import { register } from "./endpoints/register";
+import { verify } from "./endpoints/verify";
 
 class Route extends BaseRoute {
     router = express.Router();
@@ -27,7 +29,9 @@ class Route extends BaseRoute {
         });
         
         this.router.post("/login", validate(schemas.login), login);
-        this.router.post("/hello", hello);
+        this.router.post("/register", validate(schemas.register), register);
+        this.router.post("/verify", validate(schemas.verify), verify);
+
         this.router.all("*", this.handleBadRequest.bind(this));
     }
 

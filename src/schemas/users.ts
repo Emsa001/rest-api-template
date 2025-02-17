@@ -1,3 +1,4 @@
+import { verify } from "crypto";
 import Joi from "joi";
 
 const schemas = {
@@ -5,7 +6,6 @@ const schemas = {
         email: Joi.string().email().required(),
         username: Joi.string().required(),
         password: Joi.string().required(),
-        password_repeat: Joi.ref("password"),
     }),
 
     login: Joi.object()
@@ -17,9 +17,7 @@ const schemas = {
         .or("email", "username")
         .required(),
 
-    hello: Joi.object().keys({
-        user: Joi.string().required(),
-    }),
+    verify: Joi.object().keys({ }),
 };
 
 export default schemas;

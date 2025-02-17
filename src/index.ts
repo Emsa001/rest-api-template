@@ -36,11 +36,10 @@ app.use(limiter);
 
 const db = new Database("database", { dialect: "sqlite", storage: "./database1.sqlite", logging: false });
 
-await db.load("./models/users"); // load specific model
-await db.loadAll("./models"); // load all models in specific directory
-await db.sync(); // sychronize models with database
+await db.loadAll("./models");
+await db.sync();
 
 const routes = new Routes(app);
-await routes.listenAll(); // listen all
+await routes.listenAll();
 
 export default app;

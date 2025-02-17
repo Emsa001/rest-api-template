@@ -1,9 +1,31 @@
 import { Model, DataTypes, Sequelize } from "sequelize";
+import jwt from "jsonwebtoken";
+import bcrypt from "bcrypt";
 
 class Users extends Model {
     declare id: number;
-    declare name: string;
+    declare username: string;
     declare email: string;
+    declare password: string;
+    declare balance: number;
+
+    static hashPassword(password: string) {
+        return bcrypt.hashSync(password, 10);
+    }
+
+    comparePassword(password: string) {
+        return bcrypt.compareSync(password, this.password);
+    }
+
+    generateToken() {
+        if(!process.env.JWT_SECRET) throw new Error("JWT_SECRET not found in environment variables.");
+
+        const token = jwt.sign({ id: this.id }, process.env.JWT_SECRET, {
+            expiresIn: "7d",
+        });
+
+        return token;
+    }
 }
 
 const init = (sequelize: Sequelize) => {
@@ -14,7 +36,7 @@ const init = (sequelize: Sequelize) => {
                 autoIncrement: true,
                 primaryKey: true,
             },
-            name: {
+            username: {
                 type: DataTypes.STRING,
                 allowNull: false,
             },
@@ -22,6 +44,15 @@ const init = (sequelize: Sequelize) => {
                 type: DataTypes.STRING,
                 allowNull: false,
             },
+            password: {
+                type: DataTypes.STRING,
+                allowNull: false,
+            },
+            balance: {
+                type: DataTypes.DECIMAL,
+                allowNull: false,
+                defaultValue: 0,
+            }
         },
         { sequelize }
     );
