@@ -20,9 +20,9 @@ export const register = async (req: Request, res: Response) => {
         if(!user) return res.status(500).json({ message: "Failed to register user." });
 
         res.cookie("authToken", user.generateToken(), { httpOnly: true, secure: false, sameSite: "strict" });
-        return res.status(200).json({ message: "Register Successful!" });
+        return res.status(200).json({ success: true, message: "Register Successful!" });
     }catch(error:unknown){
-        res.status(500).json({ message: "Internal Server Error " });
+        res.status(500).json({ success: false, message: "Internal Server Error " });
         Logger.error(error);
     }
 }

@@ -26,6 +26,14 @@ class Users extends Model {
 
         return token;
     }
+
+    static decodeToken(token: string) {
+        if(!process.env.JWT_SECRET) throw new Error("JWT_SECRET not found in environment variables.");
+
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+        return decoded;
+    }
 }
 
 const init = (sequelize: Sequelize) => {

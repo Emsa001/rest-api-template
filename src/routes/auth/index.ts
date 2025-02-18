@@ -30,7 +30,7 @@ class Route extends BaseRoute {
         
         this.router.post("/login", validate(schemas.login), login);
         this.router.post("/register", validate(schemas.register), register);
-        this.router.post("/verify", validate(schemas.verify), verify);
+        this.router.get("/verify", validate(schemas.verify), verify);
 
         this.router.all("*", this.handleBadRequest.bind(this));
     }
@@ -41,7 +41,7 @@ class Route extends BaseRoute {
     }
 
     private setHeaders(req: Request, res: Response, next: NextFunction) {
-        res.header("Access-Control-Allow-Origin", "*");
+        res.header("Access-Control-Allow-Origin", "http://localhost:3000");
         res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
         next();
     }
